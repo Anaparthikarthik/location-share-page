@@ -1,46 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Share Your Location</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Location Share — Consent-based</title>
 <style>
-:root{color-scheme:light;--ink:#19252e;--muted:#63717b;--accent:#2563eb;--bg:#f3f6fa}
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:linear-gradient(135deg,#eaf1ff,#f8fbff 55%,#e8f8f2);min-height:100vh;display:grid;place-items:center;padding:22px;color:var(--ink)}
-.card{width:min(100%,440px);background:#fff;border-radius:24px;padding:28px;box-shadow:0 18px 50px rgba(31,55,90,.12)}
-.icon{width:58px;height:58px;border-radius:18px;background:#eaf1ff;display:grid;place-items:center;font-size:28px;margin-bottom:16px}h1{font-size:24px;margin:0 0 8px}p{color:var(--muted);line-height:1.55;margin:0 0 18px}
-button{width:100%;border:0;border-radius:14px;padding:14px 16px;font-size:16px;font-weight:650;cursor:pointer;margin-top:10px}.primary{background:var(--accent);color:white}.secondary{background:#edf2f7;color:var(--ink)}button:disabled{opacity:.55;cursor:not-allowed}
-#result{display:none;margin-top:18px;background:#f6f8fb;border-radius:14px;padding:14px;overflow-wrap:anywhere}.coords{font-size:14px;font-weight:600;margin-bottom:8px}.small{font-size:12px;color:var(--muted);margin-top:16px}.status{min-height:22px;font-size:14px;color:var(--muted);margin-top:10px}
-</style>
-</head>
-<body>
-<main class="card">
-<div class="icon" aria-hidden="true">📍</div>
-<h1>Share your location</h1>
-<p>This page will request your device's location only when you tap the button below. Your location is not uploaded or saved by this page.</p>
-<button class="primary" id="getLocation">Allow & show my location</button>
-<div class="status" id="status" aria-live="polite"></div>
-<div id="result">
-<div class="coords" id="coords"></div>
-<button class="secondary" id="mapsBtn">Open in Google Maps</button>
-<button class="secondary" id="shareBtn">Share location link</button>
-</div>
-<p class="small">You can cancel the browser permission request or close this page at any time.</p>
-</main>
+:root{color-scheme:light;--ink:#18212b;--muted:#617080;--accent:#2563eb;--bg:#f3f6fb;--card:#fff;--line:#dce4ee}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);padding:24px 14px}
+main{max-width:520px;margin:auto}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 10px 30px #15253a0b}
+h1{font-size:1.45rem;margin:0 0 8px}p{line-height:1.5;color:var(--muted)}.notice{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px;color:#1e40af;font-size:.92rem}
+button{width:100%;border:0;border-radius:12px;padding:14px 16px;font-size:1rem;font-weight:650;margin-top:10px;cursor:pointer;background:var(--accent);color:white}button.secondary{background:#e8eef7;color:#1d3557}button.stop{background:#b42318}button:disabled{opacity:.55;cursor:not-allowed}
+.status{margin-top:16px;padding:12px;border-radius:12px;background:#f1f5f9;color:#334155}.active{background:#ecfdf5;color:#166534}.coords{font-family:ui-monospace,monospace;word-break:break-word;color:var(--ink)}a{color:var(--accent);font-weight:600}.small{font-size:.82rem}
+</style></head><body><main><section class="card">
+<h1>📍 Location Share</h1><p>Share your location only when you choose to. Your location is displayed on this device and is <b>not automatically sent or uploaded</b>.</p>
+<div class="notice"><b>Before you start:</b> If you choose to share, select who receives your location and send it yourself. You can stop location access at any time.</div>
+<button id="start">Start — show my location</button><button id="stop" class="stop" disabled>Stop</button>
+<div id="status" class="status" role="status" aria-live="polite">Not sharing. Location permission has not been requested.</div>
+<div id="details" hidden><p><b>Coordinates</b></p><div class="coords" id="coords"></div><p><a id="map" target="_blank" rel="noopener">Open in Google Maps</a></p><button id="share" class="secondary">Choose recipient and share via WhatsApp</button></div>
+<p class="small">This page does not send coordinates to a remote dashboard. To share, use the button above and choose a recipient. Location access stops when you tap Stop or close the page.</p>
+</section></main>
 <script>
-const getBtn=document.getElementById('getLocation'),statusEl=document.getElementById('status'),result=document.getElementById('result'),coordsEl=document.getElementById('coords'),mapsBtn=document.getElementById('mapsBtn'),shareBtn=document.getElementById('shareBtn');
-let mapsUrl='';
-getBtn.addEventListener('click',()=>{
- if(!navigator.geolocation){statusEl.textContent='Location is not supported by this browser.';return;}
- statusEl.textContent='Requesting location permission…';getBtn.disabled=true;
- navigator.geolocation.getCurrentPosition(pos=>{
-  const lat=pos.coords.latitude.toFixed(6),lon=pos.coords.longitude.toFixed(6);
-  mapsUrl=`https://www.google.com/maps?q=${lat},${lon}`;
-  coordsEl.textContent=`Latitude: ${lat} · Longitude: ${lon}`;
-  result.style.display='block';statusEl.textContent='Location received on this device. Choose how you want to share it.';getBtn.disabled=false;
- },err=>{statusEl.textContent=err.code===1?'Permission denied. You did not share your location.':'Could not get location. Try again outdoors or check device settings.';getBtn.disabled=false;},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
-});
-mapsBtn.addEventListener('click',()=>{if(mapsUrl)window.open(mapsUrl,'_blank','noopener');});
-shareBtn.addEventListener('click',async()=>{if(!mapsUrl)return;try{if(navigator.share){await navigator.share({title:'My location',text:'Here is my location:',url:mapsUrl});}else{await navigator.clipboard.writeText(mapsUrl);statusEl.textContent='Location link copied. Paste it into your chat.';}}catch(e){if(e.name!=='AbortError')statusEl.textContent='Sharing was cancelled or unavailable.';}});
-</script>
-</body>
-</html>
+const start=document.getElementById('start'),stop=document.getElementById('stop'),status=document.getElementById('status'),details=document.getElementById('details'),coords=document.getElementById('coords'),map=document.getElementById('map'),share=document.getElementById('share');
+let watchId=null,last=null;
+function showPosition(pos){last={lat:pos.coords.latitude,lng:pos.coords.longitude};coords.textContent=`Latitude: ${last.lat.toFixed(6)}\nLongitude: ${last.lng.toFixed(6)}\nAccuracy: ±${Math.round(pos.coords.accuracy)} m`;map.href=`https://maps.google.com/?q=${last.lat},${last.lng}`;details.hidden=false;status.textContent='Location access is active on this device.';status.className='status active';}
+start.onclick=()=>{if(!navigator.geolocation){status.textContent='Geolocation is not supported by this browser.';return;}start.disabled=true;stop.disabled=false;status.textContent='Requesting location permission…';watchId=navigator.geolocation.watchPosition(showPosition,e=>{status.textContent='Location error: '+e.message;status.className='status';start.disabled=false;stop.disabled=true;},{enableHighAccuracy:true,maximumAge:0,timeout:15000});};
+stop.onclick=()=>{if(watchId!==null)navigator.geolocation.clearWatch(watchId);watchId=null;last=null;details.hidden=true;start.disabled=false;stop.disabled=true;status.textContent='Stopped. This page is no longer requesting location updates.';status.className='status';};
+share.onclick=()=>{if(!last)return;const msg=`I chose to share my location with you: https://maps.google.com/?q=${last.lat},${last.lng}`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');};
+</script></body></html>
