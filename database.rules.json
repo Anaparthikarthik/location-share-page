@@ -1,0 +1,19 @@
+{
+  "rules": {
+    "shares": {
+      ".read": "auth != null && auth.uid === 'REPLACE_WITH_YOUR_UID'",
+      "$senderUid": {
+        ".read": "auth != null && (auth.uid === $senderUid || auth.uid === 'REPLACE_WITH_YOUR_UID')",
+        ".write": "auth != null && auth.uid === $senderUid",
+        ".validate": "newData.hasChildren(['senderUid','recipientUid','latitude','longitude','accuracyMeters','updatedAt','active'])",
+        "senderUid": { ".validate": "newData.val() === auth.uid" },
+        "recipientUid": { ".validate": "newData.val() === 'REPLACE_WITH_YOUR_UID'" },
+        "latitude": { ".validate": "newData.isNumber() && newData.val() >= -90 && newData.val() <= 90" },
+        "longitude": { ".validate": "newData.isNumber() && newData.val() >= -180 && newData.val() <= 180" },
+        "accuracyMeters": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "updatedAt": { ".validate": "newData.isNumber()" },
+        "active": { ".validate": "newData.val() === true" }
+      }
+    }
+  }
+}
